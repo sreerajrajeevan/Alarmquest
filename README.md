@@ -8,13 +8,17 @@ AlarmQuest is a premium, high-contrast, Nothing OS-styled alarm clock applicatio
 
 To install **AlarmQuest** directly on your Android mobile device, you can use either of the options below:
 
-### Option 1: Direct Download from GitHub (Recommended)
-Once you have exported this project to your GitHub repository, the compiled APK can be downloaded directly using this link pattern:
+### Option 1: Direct Download from GitHub (Requires Exporting to GitHub first)
+Once you have **exported** this project to your GitHub repository, the links below will work. Since the repository might be private or not yet fully pushed/configured, make sure to:
+1. **Export the Project**: Use the **Export to GitHub** (or **Push to GitHub**) option in Google AI Studio (located in the top-right toolbar or Settings menu) to create your repository under your username.
+2. **Ensure correct URLs**: Replace `SreerajRajeevan7` or the repository name `AlarmQuest` in the links below with your actual GitHub username and repository name if they differ:
 
-*   👉 **[📥 Download Latest AlarmQuest APK](https://github.com/SreerajRajeevan7/AlarmQuest/actions)** *(Click here, navigate to the latest green workflow run, and download the `app-debug.apk` artifact from the **Artifacts** section at the bottom.)*
-*   👉 Alternatively, if you set up a Release tags trigger: **[📥 Download Latest Release APK](https://github.com/SreerajRajeevan7/AlarmQuest/releases/latest/download/app-debug.apk)**
+*   👉 **[📥 View Active GitHub actions & builds](https://github.com/SreerajRajeevan7/AlarmQuest/actions)** *(Go here to find live workflow runs. Once a run finishes, click it and scroll to the bottom to download `app-debug` from the **Artifacts** section.)*
+*   👉 **[📥 Direct Download Latest Release APK](https://github.com/SreerajRajeevan7/AlarmQuest/releases/latest/download/app-debug.apk)** *(Only works if you have created a Release tagged on GitHub.)*
 
-> *(Note: Replace `SreerajRajeevan7` or the repository name in the URL if your repository URL differs.)*
+> **⚠️ Why did you get a 404 Error?**
+> A `404` error occurs because the GitHub repository `https://github.com/SreerajRajeevan7/AlarmQuest` does not exist yet or hasn't had any completed GitHub Actions runs or Releases. Once you use AI Studio to **Push/Export** this project to your GitHub account and let the automated workflow build, this error will disappear!
+
 
 ### Option 2: Download Directly from Google AI Studio Workspace
 1. Locate the **Export** menu or build settings button in the top-right toolbar of the Google AI Studio page.
