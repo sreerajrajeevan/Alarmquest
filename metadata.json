@@ -1,0 +1,6 @@
+{
+  "name": "AlarmQuest",
+  "description": "Nothing OS inspired alarm clock challenge application where user completes camera missions.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
