@@ -1,15 +1,31 @@
 package com.example
 
+import android.app.AlarmManager
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
@@ -35,6 +51,67 @@ class MainActivity : ComponentActivity() {
                 val mainViewModel: AlarmViewModel = viewModel(factory = vmFactory)
 
                 val navController = rememberNavController()
+
+                // --- Exact-alarm permission gate (Android 12+) ---
+                // Without SCHEDULE_EXACT_ALARM / USE_EXACT_ALARM, AlarmManager silently
+                // falls back to inexact alarms, and Android 12+ then blocks the foreground
+                // service start from the alarm broadcast -> the alarm never rings.
+                // This gate forces the user through the system settings screen.
+                val context = LocalContext.current
+                var showExactAlarmDialog by remember { mutableStateOf(false) }
+
+                fun refreshExactAlarmPermission() {
+                    showExactAlarmDialog = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        val am = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                        !am.canScheduleExactAlarms()
+                    } else {
+                        false
+                    }
+                }
+
+                DisposableEffect(Unit) {
+                    val observer = LifecycleEventObserver { _, event ->
+                        if (event == Lifecycle.Event.ON_RESUME) refreshExactAlarmPermission()
+                    }
+                    val lifecycle = (context as ComponentActivity).lifecycle
+                    lifecycle.addObserver(observer)
+                    onDispose { lifecycle.removeObserver(observer) }
+                }
+
+                if (showExactAlarmDialog) {
+                    AlertDialog(
+                        onDismissRequest = { /* must act, not dismiss */ },
+                        title = { Text("Enable Alarms & Reminders") },
+                        text = {
+                            Text(
+                                "AlarmQuest needs the \"Alarms & reminders\" system permission to ring on time. " +
+                                "Without it, your alarms will NOT sound. Tap below to enable it in Settings."
+                            )
+                        },
+                        confirmButton = {
+                            TextButton(onClick = {
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                                    try {
+                                        context.startActivity(
+                                            Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
+                                                data = Uri.parse("package:${context.packageName}")
+                                            }
+                                        )
+                                    } catch (e: Exception) {
+                                        Log.e("MainActivity", "Failed to open exact alarm settings", e)
+                                        context.startActivity(
+                                            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                                data = Uri.parse("package:${context.packageName}")
+                                            }
+                                        )
+                                    }
+                                }
+                            }) {
+                                Text("OPEN SETTINGS")
+                            }
+                        }
+                    )
+                }
 
                 // High priority: Reactively capture if there is an alarm actively sounding
                 val ringingId by mainViewModel.ringingAlarmId.collectAsStateWithLifecycle()

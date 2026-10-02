@@ -93,8 +93,16 @@ class AlarmService : Service() {
             .setOngoing(true)
             .build()
 
-        // Start Foreground Service
-        startForeground(NOTIFICATION_ID, notification)
+        // Start Foreground Service (service type is mandatory on Android 14+)
+        if (Build.VERSION.SDK_INT >= 34) {
+            startForeground(
+                NOTIFICATION_ID,
+                notification,
+                android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
+            )
+        } else {
+            startForeground(NOTIFICATION_ID, notification)
+        }
 
         // Play Sound
         try {
